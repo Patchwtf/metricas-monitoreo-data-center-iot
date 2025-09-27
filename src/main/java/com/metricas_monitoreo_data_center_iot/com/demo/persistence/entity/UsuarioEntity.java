@@ -1,5 +1,7 @@
 package com.metricas_monitoreo_data_center_iot.com.demo.persistence.entity;
 
+import com.metricas_monitoreo_data_center_iot.com.demo.enums.EstatusTemperatura;
+import com.metricas_monitoreo_data_center_iot.com.demo.enums.EstatusUsuario;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +30,16 @@ public class UsuarioEntity {
 
     @Column(nullable = false)
     private String correo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstatusUsuario estatus;
+
+    @Column(name = "numero_intentos")
+    private Integer numIntentos;
+
+    @Column(nullable = false)
+    private String password;
 
     @ManyToOne
     @JoinColumn(name = "id_rol", nullable = false)

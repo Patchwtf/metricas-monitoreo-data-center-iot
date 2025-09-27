@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,10 +26,10 @@ public class MetricasEntity {
     @JoinColumn(name = "id_maquina", nullable = false)
     private MaquinaEntity maquina;
 
-    private Double ram;
-    private Double procesador;
-    private Double espacioDisco;
-    private Double temperatura;
+    private BigDecimal ram;
+    private BigDecimal procesador;
+    private BigDecimal espacioDisco;
+    private BigDecimal temperatura;
 
     @Column(nullable = false)
     private LocalDateTime timestamp;

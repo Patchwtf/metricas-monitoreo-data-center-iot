@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,8 +25,8 @@ public class TemperaturaEntity {
     @Column(nullable = false)
     private LocalDateTime registro;
 
-    @Column(nullable = false)
-    private Double temperatura;
+    @Column(precision = 5, scale = 2)
+    private BigDecimal temperatura;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

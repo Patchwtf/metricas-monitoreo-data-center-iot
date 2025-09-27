@@ -27,6 +27,8 @@ public class MaquinaEntity {
     @Column(nullable = false)
     private String ip;
 
+    private String nombre;
+
     @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro;
 
