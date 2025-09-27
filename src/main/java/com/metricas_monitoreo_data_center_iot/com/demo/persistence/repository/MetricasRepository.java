@@ -17,7 +17,7 @@ public interface MetricasRepository extends JpaRepository<MetricasEntity, Intege
     MetricasEntity findTopByMaquinaOrderByEspacioDiscoDesc(MaquinaEntity maquina);
     MetricasEntity findTopByMaquinaOrderByTemperaturaDesc(MaquinaEntity maquina);
     List<MetricasEntity> findByMaquinaAndTimestampBetweenOrderByTimestampAsc(
-            MaquinaEntity maquina, LocalDate inicio, LocalDate fin);
+            MaquinaEntity maquina, LocalDateTime inicio, LocalDateTime fin);
     List<MetricasEntity> findTop100ByMaquinaOrderByTimestampDesc(MaquinaEntity maquina);
     List<MetricasEntity> findByTemperaturaGreaterThan(Double temperatura);
     Long countByTimestampAfter(LocalDateTime date);

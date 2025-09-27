@@ -4,17 +4,18 @@ import com.metricas_monitoreo_data_center_iot.com.demo.persistence.entity.Maquin
 import com.metricas_monitoreo_data_center_iot.com.demo.persistence.entity.MetricasEntity;
 import com.metricas_monitoreo_data_center_iot.com.demo.service.MaquinaService;
 import com.metricas_monitoreo_data_center_iot.com.demo.service.MetricasService;
+import com.metricas_monitoreo_data_center_iot.com.demo.service.dto.MetricasDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/metricas")
@@ -28,10 +29,10 @@ public class MetricasController {
     private MaquinaService maquinaService;
 
     @PostMapping
-    public ResponseEntity<MetricasEntity> crearMetrica(@RequestBody MetricasEntity metrica) {
+    public ResponseEntity<MetricasDTO> crearMetrica(@RequestBody MetricasEntity metrica) {
         try {
             MetricasEntity nuevaMetrica = metricasService.save(metrica);
-            return ResponseEntity.ok(nuevaMetrica);
+            return ResponseEntity.ok(new MetricasDTO(nuevaMetrica));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -48,21 +49,29 @@ public class MetricasController {
     }
 
     @GetMapping("/maquina/{maquinaId}/historico")
-    public ResponseEntity<List<MetricasEntity>> getHistorico(
+    public ResponseEntity<List<MetricasDTO>> getHistorico(
             @PathVariable Integer maquinaId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate inicio,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate fin) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
 
         Optional<MaquinaEntity> maquina = maquinaService.findById(maquinaId);
         if (maquina.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
+        List<MetricasEntity> metricasEntities;
+
         if (inicio == null || fin == null) {
-            List<MetricasEntity> ultimas = metricasService.obtenerUltimas100Metricas(maquina.get());
-            return ResponseEntity.ok(ultimas);
+            metricasEntities = metricasService.obtenerUltimas100Metricas(maquina.get());
+        } else {
+            metricasEntities = metricasService.obtenerMetricasPorRango(maquina.get(), inicio, fin);
         }
-        List<MetricasEntity> metricas = metricasService.obtenerMetricasPorRango(maquina.get(), inicio, fin);
-        return ResponseEntity.ok(metricas);
+
+        List<MetricasDTO> metricasDTO = metricasEntities.stream()
+                .map(MetricasDTO::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(metricasDTO);
     }
 
     @GetMapping("/maquina/{maquinaId}/maximos")

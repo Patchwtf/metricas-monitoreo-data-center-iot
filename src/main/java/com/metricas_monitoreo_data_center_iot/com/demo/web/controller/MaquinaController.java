@@ -3,12 +3,14 @@ package com.metricas_monitoreo_data_center_iot.com.demo.web.controller;
 import com.metricas_monitoreo_data_center_iot.com.demo.enums.EstatusMaquina;
 import com.metricas_monitoreo_data_center_iot.com.demo.persistence.entity.MaquinaEntity;
 import com.metricas_monitoreo_data_center_iot.com.demo.service.MaquinaService;
+import com.metricas_monitoreo_data_center_iot.com.demo.service.dto.MaquinaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/maquinas")
@@ -19,26 +21,29 @@ public class MaquinaController {
     private MaquinaService maquinaService;
 
     @GetMapping
-    public List<MaquinaEntity> getAllMaquinas() {
-        return maquinaService.findAll();
+    public ResponseEntity<List<MaquinaDTO>> getAllMaquinas() {
+        List<MaquinaEntity> maquinas = maquinaService.findAll();
+        List<MaquinaDTO> maquinasDTO = maquinas.stream()
+                .map(MaquinaDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(maquinasDTO);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MaquinaEntity> getMaquinaById(@PathVariable Integer id) {
+    public ResponseEntity<MaquinaDTO> getMaquinaById(@PathVariable Integer id) {
         Optional<MaquinaEntity> maquina = maquinaService.findById(id);
-        return maquina.map(ResponseEntity::ok)
+        return maquina.map(entity -> ResponseEntity.ok(new MaquinaDTO(entity)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<?> createMaquina(@RequestBody MaquinaEntity maquina) {
-        if (maquinaService.existeMaquinaConMac(maquina.getMac())) {
-            return ResponseEntity.badRequest()
-                    .body("Ya existe una máquina con la MAC: " + maquina.getMac());
+    public ResponseEntity<MaquinaDTO> createMaquina(@RequestBody MaquinaEntity maquina) {
+        try {
+            MaquinaEntity nuevaMaquina = maquinaService.save(maquina);
+            return ResponseEntity.ok(new MaquinaDTO(nuevaMaquina));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
         }
-
-        MaquinaEntity nuevaMaquina = maquinaService.save(maquina);
-        return ResponseEntity.ok(nuevaMaquina);
     }
 
     @PutMapping("/{id}")
@@ -51,6 +56,7 @@ public class MaquinaController {
         }
 
         MaquinaEntity maquina = maquinaOptional.get();
+        maquina.setNombre(maquinaDetails.getNombre());
         maquina.setMac(maquinaDetails.getMac());
         maquina.setIp(maquinaDetails.getIp());
         maquina.setEstatus(maquinaDetails.getEstatus());
@@ -60,11 +66,11 @@ public class MaquinaController {
         }
 
         MaquinaEntity updatedMaquina = maquinaService.save(maquina);
-        return ResponseEntity.ok(updatedMaquina);
+        return ResponseEntity.ok(new MaquinaDTO(updatedMaquina));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMaquina(@PathVariable Integer id) {  // ← Integer
+    public ResponseEntity<Void> deleteMaquina(@PathVariable Integer id) {
         if (maquinaService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }

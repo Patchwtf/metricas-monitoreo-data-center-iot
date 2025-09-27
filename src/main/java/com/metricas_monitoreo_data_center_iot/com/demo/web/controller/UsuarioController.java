@@ -2,13 +2,19 @@ package com.metricas_monitoreo_data_center_iot.com.demo.web.controller;
 
 
 import com.metricas_monitoreo_data_center_iot.com.demo.enums.EstatusUsuario;
+import com.metricas_monitoreo_data_center_iot.com.demo.persistence.entity.MaquinaEntity;
 import com.metricas_monitoreo_data_center_iot.com.demo.persistence.entity.UsuarioEntity;
+import com.metricas_monitoreo_data_center_iot.com.demo.service.MaquinaService;
 import com.metricas_monitoreo_data_center_iot.com.demo.service.UsuarioService;
+import com.metricas_monitoreo_data_center_iot.com.demo.service.dto.MaquinaDTO;
+import com.metricas_monitoreo_data_center_iot.com.demo.service.dto.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -18,35 +24,44 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private MaquinaService maquinaService;
+
     @GetMapping
-    public List<UsuarioEntity> getAllUsuarios() {
-        return usuarioService.findAll();
+    public ResponseEntity<List<UsuarioDTO>> getAllUsuarios() {
+        List<UsuarioEntity> usuarios = usuarioService.findAll();
+        List<UsuarioDTO> usuariosDTO = usuarios.stream()
+                .map(UsuarioDTO::new)  // Constructor completo por defecto
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(usuariosDTO);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioEntity> getUsuarioById(@PathVariable String id) {
+    public ResponseEntity<UsuarioDTO> getUsuarioById(@PathVariable String id) {
         return usuarioService.findById(id)
+                .map(UsuarioDTO::new)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/correo/{correo}")
-    public ResponseEntity<UsuarioEntity> getUsuarioByCorreo(@PathVariable String correo) {
+    public ResponseEntity<UsuarioDTO> getUsuarioByCorreo(@PathVariable String correo) {
         return usuarioService.findByCorreo(correo)
+                .map(UsuarioDTO::new)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/rol/{nombreRol}")
-    public List<UsuarioEntity> getUsuariosByRol(@PathVariable String nombreRol) {
-        return usuarioService.findByRolNombre(nombreRol);
+    public List<UsuarioDTO> getUsuariosByRol(@PathVariable String nombreRol) {
+        return usuarioService.findByRolNombre(nombreRol).stream().map(UsuarioDTO::new).toList();
     }
 
     @PostMapping
     public ResponseEntity<?> createUsuario(@RequestBody UsuarioEntity usuario) {
         try {
             UsuarioEntity nuevoUsuario = usuarioService.save(usuario);
-            return ResponseEntity.ok(nuevoUsuario);
+            return ResponseEntity.ok(new UsuarioDTO(nuevoUsuario));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -60,7 +75,7 @@ public class UsuarioController {
         usuarioDetails.setIdUsuario(id);
         try {
             UsuarioEntity updatedUsuario = usuarioService.save(usuarioDetails);
-            return ResponseEntity.ok(updatedUsuario);
+            return ResponseEntity.ok(new UsuarioDTO(updatedUsuario));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -70,7 +85,7 @@ public class UsuarioController {
     public ResponseEntity<?> updateUsuarioRol(@PathVariable String id, @PathVariable Integer rolId) {
         try {
             UsuarioEntity usuario = usuarioService.actualizarRol(id, rolId);
-            return ResponseEntity.ok(usuario);
+            return ResponseEntity.ok(new UsuarioDTO(usuario));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -91,17 +106,35 @@ public class UsuarioController {
     }
 
     @PatchMapping("/{id}/desbloquear")
-    public ResponseEntity<UsuarioEntity> desbloquearUsuario(@PathVariable String id) {
+    public ResponseEntity<UsuarioDTO> desbloquearUsuario(@PathVariable String id) {
         try {
             UsuarioEntity usuario = usuarioService.desbloquearUsuario(id);
-            return ResponseEntity.ok(usuario);
+            return ResponseEntity.ok(new UsuarioDTO(usuario));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
+    @GetMapping("/{id}/maquinas")
+    public ResponseEntity<List<MaquinaDTO>> getMaquinasDeUsuario(@PathVariable String id) {
+        try {
+            Optional<UsuarioEntity> usuarioOpt = usuarioService.findById(id);
+            if (usuarioOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            List<MaquinaEntity> maquinas = maquinaService.findByResponsable(usuarioOpt.get());
+            List<MaquinaDTO> maquinasDTO = maquinas.stream()
+                    .map(MaquinaDTO::new)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(maquinasDTO);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+
     @GetMapping("/estatus/{estatus}")
-    public List<UsuarioEntity> getUsuariosPorEstatus(@PathVariable EstatusUsuario estatus) {
-        return usuarioService.findByEstatus(estatus);
+    public List<UsuarioDTO> getUsuariosPorEstatus(@PathVariable EstatusUsuario estatus) {
+        return usuarioService.findByEstatus(estatus).stream().map(UsuarioDTO::new).toList();
     }
 }

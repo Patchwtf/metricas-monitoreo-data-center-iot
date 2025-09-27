@@ -4,6 +4,7 @@ import com.metricas_monitoreo_data_center_iot.com.demo.persistence.entity.Maquin
 import com.metricas_monitoreo_data_center_iot.com.demo.persistence.entity.MetricasEntity;
 import com.metricas_monitoreo_data_center_iot.com.demo.persistence.repository.MaquinaRepository;
 import com.metricas_monitoreo_data_center_iot.com.demo.persistence.repository.MetricasRepository;
+import com.metricas_monitoreo_data_center_iot.com.demo.service.dto.MetricasDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,9 @@ public class MetricasService {
     }
 
     public List<MetricasEntity> obtenerMetricasPorRango(MaquinaEntity maquina, LocalDate inicio, LocalDate fin) {
-        return metricasRepository.findByMaquinaAndTimestampBetweenOrderByTimestampAsc(maquina, inicio, fin);
+        LocalDateTime inicioDateTime = inicio.atStartOfDay();
+        LocalDateTime finDateTime = fin.atTime(23, 59, 59);
+        return metricasRepository.findByMaquinaAndTimestampBetweenOrderByTimestampAsc(maquina, inicioDateTime, finDateTime);
     }
 
     public List<MetricasEntity> obtenerUltimas100Metricas(MaquinaEntity maquina) {
@@ -95,7 +98,7 @@ public class MetricasService {
 
         List<MetricasEntity> ultimas = obtenerUltimas100Metricas(maquina);
         if (!ultimas.isEmpty()) {
-            dashboard.put("ultimaMetrica", ultimas.get(0));
+            dashboard.put("ultimaMetrica", new MetricasDTO(ultimas.getFirst()));
         }
 
         dashboard.put("promedios24h", obtenerPromediosUltimas24Horas(maquina));
