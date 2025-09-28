@@ -7,6 +7,7 @@ import com.metricas_monitoreo_data_center_iot.com.demo.service.dto.RolesDTO;
 import com.metricas_monitoreo_data_center_iot.com.demo.service.dto.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/roles")
 @CrossOrigin(origins = "*")
+@PreAuthorize("hasRole('ADMIN')")
 public class RolesController {
 
     @Autowired

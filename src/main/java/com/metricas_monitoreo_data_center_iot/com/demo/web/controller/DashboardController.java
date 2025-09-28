@@ -3,6 +3,7 @@ package com.metricas_monitoreo_data_center_iot.com.demo.web.controller;
 import com.metricas_monitoreo_data_center_iot.com.demo.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/dashboard")
 @CrossOrigin(origins = "*")
+@PreAuthorize("hasRole('ADMIN') or hasRole('USUARIO')")
 public class DashboardController {
 
     @Autowired
@@ -34,7 +36,6 @@ public class DashboardController {
     public ResponseEntity<List<Map<String, Object>>> getAlertasActivas() {
         try {
             Map<String, Object> estadoGeneral = dashboardService.obtenerEstadoGeneral();
-            @SuppressWarnings("unchecked")
             List<Map<String, Object>> alertas = (List<Map<String, Object>>) estadoGeneral.get("alertasActivas");
             return ResponseEntity.ok(alertas);
         } catch (Exception e) {
@@ -46,7 +47,6 @@ public class DashboardController {
     public ResponseEntity<Map<String, Object>> getMetricasTiempoReal() {
         try {
             Map<String, Object> estadoGeneral = dashboardService.obtenerEstadoGeneral();
-            @SuppressWarnings("unchecked")
             Map<String, Object> metricas = (Map<String, Object>) estadoGeneral.get("metricasTiempoReal");
             return ResponseEntity.ok(metricas);
         } catch (Exception e) {
@@ -59,14 +59,12 @@ public class DashboardController {
         try {
             Map<String, Object> estadoGeneral = dashboardService.obtenerEstadoGeneral();
 
-            // Extraer solo los datos más importantes para un resumen rápido
             Map<String, Object> resumen = new HashMap<>();
             resumen.put("totalMaquinas", estadoGeneral.get("totalMaquinas"));
             resumen.put("maquinasActivas", estadoGeneral.get("maquinasActivas"));
             resumen.put("totalAlertas", estadoGeneral.get("totalAlertas"));
             resumen.put("ultimaActualizacion", estadoGeneral.get("ultimaActualizacion"));
 
-            @SuppressWarnings("unchecked")
             Map<String, Object> metricas = (Map<String, Object>) estadoGeneral.get("metricasTiempoReal");
             if (metricas != null) {
                 resumen.put("temperaturaPromedio", metricas.get("temperaturaPromedio"));

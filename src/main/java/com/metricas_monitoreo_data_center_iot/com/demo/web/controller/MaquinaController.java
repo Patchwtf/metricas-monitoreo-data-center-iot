@@ -6,6 +6,7 @@ import com.metricas_monitoreo_data_center_iot.com.demo.service.MaquinaService;
 import com.metricas_monitoreo_data_center_iot.com.demo.service.dto.MaquinaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,11 +16,13 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/maquinas")
 @CrossOrigin(origins = "*")
+@PreAuthorize("hasRole('ADMIN') or hasRole('USUARIO')")
 public class MaquinaController {
 
     @Autowired
     private MaquinaService maquinaService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<MaquinaDTO>> getAllMaquinas() {
         List<MaquinaEntity> maquinas = maquinaService.findAll();

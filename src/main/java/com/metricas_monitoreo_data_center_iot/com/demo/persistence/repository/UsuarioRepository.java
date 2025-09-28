@@ -15,6 +15,5 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, String> 
     Optional<UsuarioEntity> findByCorreo(String correo);
     boolean existsByCorreo(String correo);
     List<UsuarioEntity> findByEstatus(EstatusUsuario estatus);
-    List<UsuarioEntity> findByNumIntentosGreaterThan(int intentos);
 
 }

@@ -22,7 +22,7 @@ public class MaquinaDTO {
     public MaquinaDTO() {}
 
     public MaquinaDTO(MaquinaEntity maquina) {
-        this(maquina, true, true); // Por defecto incluir relaciones
+        this(maquina, true, true);
     }
 
     public MaquinaDTO(MaquinaEntity maquina, boolean incluirIp, boolean incluirFechaReistro) {

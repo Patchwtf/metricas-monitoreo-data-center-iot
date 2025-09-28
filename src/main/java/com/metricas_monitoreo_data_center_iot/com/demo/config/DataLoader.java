@@ -1,4 +1,4 @@
-package com.metricas_monitoreo_data_center_iot.com.demo.web.config;
+package com.metricas_monitoreo_data_center_iot.com.demo.config;
 
 import com.metricas_monitoreo_data_center_iot.com.demo.persistence.entity.*;
 import com.metricas_monitoreo_data_center_iot.com.demo.persistence.repository.*;

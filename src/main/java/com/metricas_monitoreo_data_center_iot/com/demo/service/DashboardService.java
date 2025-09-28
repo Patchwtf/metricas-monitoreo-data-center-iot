@@ -43,7 +43,6 @@ public class DashboardService {
     public Map<String, Object> obtenerEstadoGeneral() {
         Map<String, Object> dashboard = new HashMap<>();
 
-        // 📊 ESTADÍSTICAS DE MÁQUINAS
         List<MaquinaEntity> todasMaquinas = maquinaRepository.findAll();
         long totalMaquinas = todasMaquinas.size();
         long maquinasActivas = todasMaquinas.stream()
@@ -82,7 +81,6 @@ public class DashboardService {
 
         List<MaquinaEntity> maquinas = maquinaRepository.findAll();
 
-        // ✅ INICIALIZAR como BigDecimal, no como double
         BigDecimal temperaturaPromedio = BigDecimal.ZERO;
         BigDecimal cpuPromedio = BigDecimal.ZERO;
         BigDecimal ramPromedio = BigDecimal.ZERO;
@@ -95,7 +93,6 @@ public class DashboardService {
             if (!metricasRecientes.isEmpty()) {
                 MetricasEntity ultima = metricasRecientes.getFirst();
 
-                // ✅ SUMAR correctamente con BigDecimal
                 if (ultima.getTemperatura() != null) {
                     temperaturaPromedio = temperaturaPromedio.add(ultima.getTemperatura());
                 }
@@ -110,7 +107,6 @@ public class DashboardService {
         }
 
         if (maquinasConMetricas > 0) {
-            // ✅ CALCULAR PROMEDIO con BigDecimal
             BigDecimal divisor = BigDecimal.valueOf(maquinasConMetricas);
 
             metricas.put("temperaturaPromedio",

@@ -47,4 +47,12 @@ public class UsuarioEntity {
 
     @OneToMany(mappedBy = "responsable")
     private List<MaquinaEntity> maquinas;
+
+    @Column(name = "token_version", nullable = false)
+    private Integer tokenVersion = 1;
+
+    public void invalidarTokensAnteriores() {
+        this.tokenVersion++;
+        System.out.println("🔄 Token version incrementada a: " + this.tokenVersion);
+    }
 }

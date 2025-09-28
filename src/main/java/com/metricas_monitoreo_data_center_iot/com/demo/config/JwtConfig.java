@@ -1,4 +1,4 @@
-package com.metricas_monitoreo_data_center_iot.com.demo.web.config;
+package com.metricas_monitoreo_data_center_iot.com.demo.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

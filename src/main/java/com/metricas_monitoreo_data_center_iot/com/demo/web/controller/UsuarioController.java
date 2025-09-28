@@ -10,6 +10,7 @@ import com.metricas_monitoreo_data_center_iot.com.demo.service.dto.MaquinaDTO;
 import com.metricas_monitoreo_data_center_iot.com.demo.service.dto.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/usuarios")
 @CrossOrigin(origins = "*")
+@PreAuthorize("hasRole('ADMIN')")
 public class UsuarioController {
 
     @Autowired
@@ -27,11 +29,12 @@ public class UsuarioController {
     @Autowired
     private MaquinaService maquinaService;
 
+
     @GetMapping
     public ResponseEntity<List<UsuarioDTO>> getAllUsuarios() {
         List<UsuarioEntity> usuarios = usuarioService.findAll();
         List<UsuarioDTO> usuariosDTO = usuarios.stream()
-                .map(UsuarioDTO::new)  // Constructor completo por defecto
+                .map(UsuarioDTO::new)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(usuariosDTO);
     }
@@ -115,6 +118,7 @@ public class UsuarioController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USUARIO')")
     @GetMapping("/{id}/maquinas")
     public ResponseEntity<List<MaquinaDTO>> getMaquinasDeUsuario(@PathVariable String id) {
         try {

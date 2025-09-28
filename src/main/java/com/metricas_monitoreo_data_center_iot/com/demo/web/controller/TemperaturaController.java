@@ -6,6 +6,7 @@ import com.metricas_monitoreo_data_center_iot.com.demo.service.TemperaturaServic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/temperaturas")
 @CrossOrigin(origins = "*")
+@PreAuthorize("isAuthenticated()")
 public class TemperaturaController {
 
     @Autowired
